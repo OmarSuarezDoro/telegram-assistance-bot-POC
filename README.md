@@ -19,7 +19,7 @@ La idea del proyecto es demostrar un flujo completo y entendible de extremo a ex
 
 No pretende ser una solución enterprise ni un producto listo para producción. Está diseñado como base de experimentación y aprendizaje.
 
----
+
 
 ## Objetivo del POC
 
@@ -32,7 +32,7 @@ Este POC busca validar de forma simple:
 - persistencia básica con PostgreSQL
 - empaquetado portable mediante Docker
 
----
+
 
 ## Qué hace ahora mismo
 
@@ -54,7 +54,7 @@ También incluye:
 - transcripción de audios con `faster-whisper`
 - configuración de intents mediante `config/CONFIGURATION_AI.md`
 
----
+
 
 ## Arquitectura simplificada
 
@@ -94,7 +94,7 @@ Telegram
 - `config/CONFIGURATION_AI.md`
   Contrato de clasificación para el modelo de IA.
 
----
+
 
 ## Integracion con IA
 
@@ -119,7 +119,7 @@ Eso significa que cambiar el proveedor o mover el modelo a otra máquina es rela
 
 En otras palabras: hoy está preparado para un modelo local y barato, pero no está rígidamente atado a él.
 
----
+
 
 ## Limitaciones del POC
 
@@ -136,7 +136,7 @@ Este proyecto es deliberadamente simple. Algunas limitaciones importantes:
 
 Esto es importante dejarlo claro: el uso de un único modelo servido por Ollama en localhost simplifica muchísimo el POC, pero no garantiza disponibilidad ni resiliencia.
 
----
+
 
 ## Requisitos
 
@@ -155,7 +155,7 @@ Si ejecutas la transcripción fuera de Docker, también necesitas:
 - dependencias de `requirements.txt`
 - `ffmpeg`
 
----
+
 
 ## Variables de entorno
 
@@ -201,7 +201,7 @@ Variables opcionales para transcripción:
 - `WHISPER_CPU_COMPUTE_TYPE`
 - `WHISPER_CUDA_COMPUTE_TYPE`
 
----
+
 
 ## Ejecucion local
 
@@ -229,7 +229,7 @@ npm start
 npm run dev
 ```
 
----
+
 
 ## Despliegue con Docker
 
@@ -280,7 +280,7 @@ http://host.docker.internal:11434
 
 Esto es útil cuando Ollama corre en la máquina host y la app corre dentro de Docker.
 
----
+
 
 ## Base de datos
 
@@ -296,7 +296,7 @@ Actualmente se crean tablas para:
 
 El esquema está pensado para este POC y no como modelo final de dominio.
 
----
+
 
 ## Transcripción de audio
 
@@ -310,7 +310,7 @@ La transcripción se hace con `faster-whisper` desde Python.
 
 Esto mejora bastante la portabilidad, especialmente en entornos donde no hay dependencias NVIDIA disponibles.
 
----
+
 
 ## Configuracion de intents
 
@@ -328,7 +328,7 @@ Ese archivo define:
 
 Si se añaden nuevos comandos al dispatcher, conviene actualizar ese documento para mantener sincronía entre código y comportamiento esperado del modelo.
 
----
+
 
 ## Portabilidad y desacoplo
 
@@ -342,7 +342,7 @@ Se han tomado varias decisiones para hacer el proyecto más portable:
 
 Esto no convierte el proyecto en una plataforma cloud-native, pero sí facilita moverlo entre equipos, máquinas y entornos de prueba con menos fricción.
 
----
+
 
 ## Qué no cubre este POC
 
@@ -358,7 +358,7 @@ No cubre, al menos de momento:
 - panel de administración
 - trazabilidad completa de inferencias
 
----
+
 
 ## Ideas de evolucion
 
@@ -372,7 +372,7 @@ Si este POC creciera, algunos siguientes pasos razonables serían:
 - añadir estrategia de reintentos y colas
 - evaluar disponibilidad del modelo con varias réplicas o servicios externos
 
----
+
 
 ## Resumen
 
