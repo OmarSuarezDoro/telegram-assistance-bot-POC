@@ -1,0 +1,36 @@
+{
+  "name": "telegram_bot_assistant_poc",
+  "version": "1.0.0",
+  "description": "A proof of concept for a Telegram bot assistant",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "dev": "concurrently \"tsc --watch\" \"nodemon dist/index.js\"",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f app"
+  },
+  "keywords": [ "BOT", "Telegram", "Assistant"],
+  "author": "noexdev",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/node-telegram-bot-api": "^0.64.14",
+    "@types/pg": "^8.20.0",
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.14",
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "axios": "^1.15.0",
+    "child_process": "^1.0.2",
+    "chrono-node": "^2.9.0",
+    "dotenv": "^17.4.2",
+    "node-telegram-bot-api": "^0.67.0",
+    "pg": "^8.20.0"
+  }
+}

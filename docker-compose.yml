@@ -1,0 +1,47 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-telegrambot}
+      DB_USER: ${DB_USER:-telegrambot}
+      DB_PASSWORD: ${DB_PASSWORD:-telegrambot}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3.5}
+      PYTHON_BIN: python
+      REMINDER_POLL_INTERVAL_MS: ${REMINDER_POLL_INTERVAL_MS:-30000}
+      REMINDER_POLL_BATCH_SIZE: ${REMINDER_POLL_BATCH_SIZE:-50}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${DB_NAME:-telegrambot}
+      POSTGRES_USER: ${DB_USER:-telegrambot}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-telegrambot}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-telegrambot} -d ${DB_NAME:-telegrambot}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./config/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+volumes:
+  postgres_data:
