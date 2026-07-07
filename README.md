@@ -1,200 +1,197 @@
 # Telegram AI Bot POC
 
-## Descripcion
+## Description
 
-Este repositorio contiene un pequeño POC de un bot de Telegram orientado a:
+This repository contains a small POC for a Telegram bot designed to:
 
-- recibir mensajes de texto y audio
-- transcribir audio a texto
-- interpretar la intencion del usuario con ayuda de un modelo de IA
-- ejecutar comandos sencillos sobre recordatorios y tareas
+- receive text and audio messages
+- transcribe audio to text
+- interpret the user's intent with the help of an AI model
+- execute simple commands related to reminders and tasks
 
-La idea del proyecto es demostrar un flujo completo y entendible de extremo a extremo:
+The goal of the project is to demonstrate a complete and easy-to-understand end-to-end flow:
 
-1. Telegram entrega un mensaje al bot.
-2. Si el mensaje es de voz, se transcribe a texto.
-3. El texto se envía a un modelo de IA para clasificar el intent.
-4. El intent se enruta a la lógica de aplicación.
-5. La aplicación responde al usuario y, si aplica, persiste datos en PostgreSQL.
+1. Telegram delivers a message to the bot.
+2. If the message is a voice message, it is transcribed to text.
+3. The text is sent to an AI model to classify the intent.
+4. The intent is routed to the application logic.
+5. The application responds to the user and, when applicable, persists data in PostgreSQL.
 
-No pretende ser una solución enterprise ni un producto listo para producción. Está diseñado como base de experimentación y aprendizaje.
+It is not intended to be an enterprise solution or a production-ready product. It is designed as a foundation for experimentation and learning.
 
 
+## POC Objective
 
-## Objetivo del POC
+This POC aims to validate, in a simple way:
 
-Este POC busca validar de forma simple:
-
-- integración con Telegram
-- transcripción de audio
-- clasificación de intents mediante IA
-- desacoplo entre parser, dispatcher y servicios de dominio
-- persistencia básica con PostgreSQL
-- empaquetado portable mediante Docker
+- integration with Telegram
+- audio transcription
+- intent classification using AI - decoupling between parser, dispatcher and domain services
+- basic persistence with PostgreSQL
+- portable packaging using Docker
 
 
 
-## Qué hace ahora mismo
+## What It Currently Does
 
-Actualmente el bot soporta intents de:
+The bot currently supports intents for:
 
-- creación de recordatorios
-- listado de recordatorios
-- borrado de recordatorios
-- actualización de recordatorios
-- creación de tareas
-- listado de tareas
-- borrado de una tarea
-- borrado de todas las tareas pendientes
-- comandos auxiliares como `help`, `start` y `cancel`
+- creating reminders
+- listing reminders
+- deleting reminders
+- updating reminders
+- creating tasks
+- listing tasks
+- deleting a task
+- deleting all pending tasks
+- auxiliary commands such as `help`, `start` and `cancel`
 
-También incluye:
+It also includes:
 
-- notificación automática de recordatorios vencidos
-- transcripción de audios con `faster-whisper`
-- configuración de intents mediante `config/CONFIGURATION_AI.md`
+- automatic notification of overdue reminders
+- audio transcription with `faster-whisper`
+- intent configuration through `config/CONFIGURATION_AI.md`
 
 
 
-## Arquitectura simplificada
+## Simplified Architecture
 
-El flujo principal es este:
+The main flow is as follows:
 
 ```text
 Telegram
   -> Bot
   -> Input Parser
-  -> IA / LLM
+  -> AI / LLM
   -> Command Dispatcher
   -> Services
   -> Repository
   -> PostgreSQL
 ```
 
-### Piezas principales
+### Main Components
 
-- `src/index.ts`
-  Punto de entrada del bot y orquestación básica.
+- `src/index.ts`  
+  Bot entry point and basic orchestration.
 
-- `src/modules/inputs`
-  Parseo de entrada de texto y audio.
+- `src/modules/inputs`  
+  Text and audio input parsing.
 
-- `pworker/transcribe.py`
-  Worker Python para transcribir audio.
+- `pworker/transcribe.py`  
+  Python worker for audio transcription.
 
-- `src/modules/commands`
-  Definición de intents y dispatcher de comandos.
+- `src/modules/commands`  
+  Intent definitions and command dispatcher.
 
-- `src/modules/reminders`
-  Dominio de recordatorios, repositorio, servicio y notificador.
+- `src/modules/reminders`  
+  Reminder domain, repository, service and notifier.
 
-- `src/modules/tasks`
-  Dominio de tareas, repositorio y servicio.
+- `src/modules/tasks`  
+  Task domain, repository and service.
 
-- `config/CONFIGURATION_AI.md`
-  Contrato de clasificación para el modelo de IA.
+- `config/CONFIGURATION_AI.md`  
+  Classification contract for the AI model.
 
 
 
-## Integracion con IA
+## AI Integration
 
-La aplicación está pensada para usar un modelo servido por Ollama a través de HTTP.
+The application is designed to use a model served by Ollama over HTTP.
 
-### Estado actual
+### Current State
 
-Por ahora se contempla un modelo gratuito de Ollama accesible en localhost, por ejemplo:
+For now, the project considers a free Ollama model accessible on localhost, for example:
 
 ```text
 http://localhost:11434
 ```
 
-### Importante
+### Important
 
-Aunque el ejemplo usa Ollama en localhost, la integración está desacoplada mediante configuración:
+Although the example uses Ollama on localhost, the integration is decoupled through configuration:
 
 - `OLLAMA_BASE_URL`
 - `OLLAMA_MODEL`
 
-Eso significa que cambiar el proveedor o mover el modelo a otra máquina es relativamente sencillo, siempre que se mantenga una interfaz compatible con la llamada que hace la app.
+This means that changing the provider or moving the model to another machine is relatively straightforward, as long as a compatible interface is maintained for the call made by the app.
 
-En otras palabras: hoy está preparado para un modelo local y barato, pero no está rígidamente atado a él.
-
-
-
-## Limitaciones del POC
-
-Este proyecto es deliberadamente simple. Algunas limitaciones importantes:
-
-- no se ha contemplado clustering de modelos para garantizar disponibilidad
-- no hay alta disponibilidad del servicio de IA
-- no hay balanceo entre múltiples instancias del modelo
-- no hay mecanismos avanzados de tolerancia a fallos
-- no hay colas de trabajo dedicadas
-- no hay observabilidad avanzada ni métricas formales
-- no hay gestión de secretos de nivel productivo
-- no hay separación completa entre entornos ni estrategia de despliegue rolling
-
-Esto es importante dejarlo claro: el uso de un único modelo servido por Ollama en localhost simplifica muchísimo el POC, pero no garantiza disponibilidad ni resiliencia.
+In other words: today it is prepared for a local and low-cost model, but it is not rigidly tied to it.
 
 
 
-## Requisitos
+## POC Limitations
 
-Para ejecutar el proyecto necesitas como mínimo:
+This project is deliberately simple. Some important limitations are:
+
+- model clustering has not been considered to guarantee availability
+- there is no high availability for the AI service
+- there is no load balancing across multiple model instances
+- there are no advanced fault-tolerance mechanisms- there are no dedicated work queues
+- there is no advanced observability or formal metrics
+- there is no production-grade secrets management
+- there is no complete separation between environments or rolling deployment strategy
+
+This is important to make clear: using a single model served by Ollama on localhost greatly simplifies the POC, but it does not guarantee availability or resilience.
+
+
+
+## Requirements
+
+To run the project, you need at least:
 
 - Node.js
 - npm
-- Docker y Docker Compose si quieres despliegue con contenedores
-- un token de Telegram Bot
+- Docker and Docker Compose, if you want container-based deployment
+- a Telegram Bot token
 - PostgreSQL
-- un endpoint de Ollama accesible para la app
+- an Ollama endpoint accessible to the app
 
-Si ejecutas la transcripción fuera de Docker, también necesitas:
+If you run transcription outside Docker, you also need:
 
 - Python
-- dependencias de `requirements.txt`
+- dependencies from `requirements.txt`
 - `ffmpeg`
 
 
 
-## Variables de entorno
+## Environment Variables
 
-El proyecto usa un archivo `.env`.
+The project uses a `.env` file.
 
-Puedes partir de:
+You can start from:
 
 ```bash
 cp .env.example .env
 ```
 
-Variables principales:
+Main variables:
 
-- `TELEGRAM_API`
-  Token del bot de Telegram.
+- `TELEGRAM_API`  
+  Telegram bot token.
 
 - `DB_HOST`
 - `DB_PORT`
 - `DB_NAME`
 - `DB_USER`
-- `DB_PASSWORD`
-  Configuración de PostgreSQL.
+- `DB_PASSWORD`  
+  PostgreSQL configuration.
 
-- `OLLAMA_BASE_URL`
-  URL base del servicio de IA.
+- `OLLAMA_BASE_URL`  
+  Base URL of the AI service.
 
-- `OLLAMA_MODEL`
-  Modelo a usar en Ollama.
+- `OLLAMA_MODEL`  
+  Model to use in Ollama.
 
-- `PYTHON_BIN`
-  Binario de Python para la transcripción.
+- `PYTHON_BIN`  
+  Python binary used for transcription.
 
-- `REMINDER_POLL_INTERVAL_MS`
-  Intervalo de comprobación de recordatorios vencidos.
+- `REMINDER_POLL_INTERVAL_MS`  
+  Interval for checking overdue reminders.
 
-- `REMINDER_POLL_BATCH_SIZE`
-  Tamaño de lote al procesar recordatorios.
+- `REMINDER_POLL_BATCH_SIZE`  
+  Batch size when processing reminders.
 
-Variables opcionales para transcripción:
+Optional variables for transcription:
 
 - `WHISPER_DEVICE`
 - `WHISPER_MODEL`
@@ -203,27 +200,27 @@ Variables opcionales para transcripción:
 
 
 
-## Ejecucion local
+## Local Execution
 
-### 1. Instalar dependencias de Node
+### 1. Install Node dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Compilar
+### 2. Build
 
 ```bash
 npm run build
 ```
 
-### 3. Ejecutar
+### 3. Run
 
 ```bash
 npm start
 ```
 
-### 4. Modo desarrollo
+### 4. Development mode
 
 ```bash
 npm run dev
@@ -231,163 +228,142 @@ npm run dev
 
 
 
-## Despliegue con Docker
+## Deployment with Docker
 
-Este repositorio incluye infraestructura básica con Docker para facilitar portabilidad.
+This repository includes basic Docker infrastructure to improve portability.
 
-### Qué levanta Docker Compose
+### What Docker Compose Starts
 
-- `app`
-  La aplicación Node.js con el worker Python de transcripción.
+- `app`  
+  The Node.js application with the Python transcription worker.
 
-- `db`
-  PostgreSQL con inicialización automática desde `config/init.sql`.
+- `db`  
+  PostgreSQL with automatic initialization from `config/init.sql`.
 
-### Construir imagen
+### Build the image
 
 ```bash
 npm run docker:build
 ```
 
-### Levantar servicios
+### Start services
 
 ```bash
 npm run docker:up
 ```
 
-### Ver logs
+### View logs
 
 ```bash
 npm run docker:logs
 ```
 
-### Parar servicios
+### Stop services
 
 ```bash
 npm run docker:down
 ```
 
-### Nota sobre Ollama en Docker
+### Note About Ollama in Docker
 
-La IA no va embebida en el `docker-compose` actual.
+AI is not embedded in the current `docker-compose`.
 
-La aplicación espera un endpoint accesible por `OLLAMA_BASE_URL`.
-Por defecto, el ejemplo está pensado para usar:
+The application expects an endpoint accessible through `OLLAMA_BASE_URL`.
+By default, the example is designed to use:
 
 ```text
 http://host.docker.internal:11434
 ```
 
-Esto es útil cuando Ollama corre en la máquina host y la app corre dentro de Docker.
+This is useful when Ollama runs on the host machine and the app runs inside Docker.
 
 
 
-## Base de datos
+## Database
 
-La base de datos se inicializa con:
+The database is initialized with:
 
 - `config/init.sql`
 
-Actualmente se crean tablas para:
+It currently creates tables for:
 
 - `tasks`
 - `reminders`
 - `users`
 
-El esquema está pensado para este POC y no como modelo final de dominio.
+The schema is designed for this POC and not as a final domain model.
 
 
 
-## Transcripción de audio
+## Audio Transcription
 
-La transcripción se hace con `faster-whisper` desde Python.
+Audio transcription is performed with `faster-whisper` from Python.
 
-### Comportamiento actual
+### Current Behavior
 
-- por defecto usa CPU
-- puede usar GPU si se configura explícitamente
-- hace fallback a CPU si el backend CUDA falla
+- it uses CPU by default
+- it can use GPU if explicitly configured
+- it falls back to CPU if the CUDA backend fails
 
-Esto mejora bastante la portabilidad, especialmente en entornos donde no hay dependencias NVIDIA disponibles.
+This significantly improves portability, especially in environments where NVIDIA dependencies are not available.
 
 
 
-## Configuracion de intents
+## Intent Configuration
 
-El contrato del clasificador está definido en:
+The classifier contract is defined in:
 
 - `config/CONFIGURATION_AI.md`
 
-Ese archivo define:
+That file defines:
 
-- intents válidos
-- campos permitidos
-- reglas semánticas
-- ejemplos
-- casos de prueba
+- valid intents
+- allowed fields
+- semantic rules
+- examples
+- test cases
 
-Si se añaden nuevos comandos al dispatcher, conviene actualizar ese documento para mantener sincronía entre código y comportamiento esperado del modelo.
-
-
-
-## Portabilidad y desacoplo
-
-Se han tomado varias decisiones para hacer el proyecto más portable:
-
-- Docker para la app y PostgreSQL
-- variables de entorno para desacoplar servicios
-- integración con IA a través de URL configurable
-- worker de transcripción aislado en Python
-- separación entre parser, dispatcher, servicios y repositorios
-
-Esto no convierte el proyecto en una plataforma cloud-native, pero sí facilita moverlo entre equipos, máquinas y entornos de prueba con menos fricción.
+If new commands are added to the dispatcher, this document should be updated to keep the code and the expected model behavior in sync.
 
 
 
-## Qué no cubre este POC
+## Portability and Decoupling
 
-No cubre, al menos de momento:
+Several decisions were made to make the project more portable:
 
-- clustering de modelos
-- redundancia del servicio de IA
-- replicación multi-región
-- despliegue orquestado en Kubernetes
-- colas distribuidas
-- rate limiting serio
-- autenticación compleja
-- panel de administración
-- trazabilidad completa de inferencias
+- Docker for the app and PostgreSQL
+- environment variables to decouple services
+- AI integration through a configurable URL
+- isolated Python transcription worker
+- separation between parser, dispatcher, services and repositories
+
+This does not turn the project into a cloud-native platform, but it does make it easier to move between computers, machines and test environments with less friction.
 
 
+## What This POC Does Not Cover
 
-## Ideas de evolucion
+At least for now, it does not cover:
 
-Si este POC creciera, algunos siguientes pasos razonables serían:
+- model clustering
+- AI service redundancy
+- multi-region replication
+- orchestrated deployment on Kubernetes
+- distributed queues
+- serious rate limiting
+- complex authentication
+- admin dashboard
+- full inference traceability
 
-- mover la notificación de recordatorios a un worker separado
-- desacoplar la IA detrás de una interfaz más genérica
-- añadir tests automatizados
-- separar mejor configuración local, Docker y producción
-- incorporar observabilidad real
-- añadir estrategia de reintentos y colas
-- evaluar disponibilidad del modelo con varias réplicas o servicios externos
 
 
+## Evolution Ideas
 
-## Resumen
+If this POC grows, some reasonable next steps would be:
 
-Este proyecto es un POC sencillo pero funcional de:
-
-- bot de Telegram
-- transcripción de audio
-- integración con modelos de IA
-- gestión básica de intents del usuario final
-
-Está pensado para ser fácil de entender, fácil de mover y fácil de extender.
-
-Y al mismo tiempo deja claro su alcance:
-
-- un único modelo de IA accesible por URL
-- sin clustering
-- sin garantías fuertes de disponibilidad
-- orientado a validación funcional, no a operación crítica
+- move reminder notifications to a separate worker
+- decouple the AI behind a more generic interface
+- add automated tests
+- better separate local, Docker and production configuration
+- incorporate real observability
+- add retry and queue strategies
+- evaluate model availability using multiple replicas or external services
